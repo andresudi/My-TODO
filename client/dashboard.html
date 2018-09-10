@@ -33,10 +33,6 @@
                             <img src="" alt=""> Tasks</a>
                     </li>
                     <li>
-                        <a href="" v-on:click="getPriorityTask">
-                            <img src="" alt=""> Priority Tasks</a>
-                    </li>
-                    <li>
                         <a href="#menu" v-on:click="getDoneTask">
                             <img src="" alt=""> Done Tasks</a>
                     </li>
@@ -62,6 +58,7 @@
                                     <tr>
                                         <th>No</th>
                                         <th>Task</th>
+                                        <th>Description</th>
                                         <th>Out Date</th>
                                         <th>Due Date</th>
                                         <th>Action</th>
@@ -171,6 +168,7 @@
                             <tr class="hide-tr">
                                 <th scope="row">${index + 1}</th>
                                 <td>${task.activity}</td>
+                                <td>${task.description}</td>
                                 <td>${task.out_date.slice(0, 10)}</td>
                                 <td>${task.due_date.slice(0, 10)}</td>
                                 <td>

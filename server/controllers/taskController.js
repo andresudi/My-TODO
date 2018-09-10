@@ -58,17 +58,16 @@ const findOneTask = (req,res) => {
 }
 
 const findUnfinishedTask = (req, res) => {
-    
-    let tokens = req.headers.token
-    var decoded = jwt.verify(tokens, 'process.env,JWT_SECRET')
-    console.log(tokens);
+    let token = req.headers.token
+    var decoded = jwt.verify(token, 'process.env.JWT_SECRET')
+    console.log(token);
     
     console.log('log dari unfinished decode',decoded);
     
     Task.find({
         UserId: decoded.id,
         status: false,
-    })
+    }).sort({createdAt: 1})
     .then((data) => {
         console.log(data);
         console.log('masuk');
