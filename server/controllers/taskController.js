@@ -86,7 +86,7 @@ const findUnfinishedTask = (req, res) => {
 
 const findFinishedTask = (req, res) => {
     let token = req.headers.token
-    var decoded = jwt.verify(token, 'process.env,JWT_SECRET')
+    var decoded = jwt.verify(token, 'process.env.JWT_SECRET')
     Task.find({
         UserId: decoded.id,
         status: true,
@@ -105,8 +105,10 @@ const findFinishedTask = (req, res) => {
 }
 
 const doneTask = (req, res) => {
-    var decoded = jwt.verify(req.body.token, 'process.env.JWT_SECRET')
+    var decoded = jwt.verify(req.headers.token, 'process.env.JWT_SECRET')
     let emailUser = decoded.email 
+    console.log(emailUser);
+    
     Task.updateOne({
         _id: req.params.id
     }, {

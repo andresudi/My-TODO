@@ -8,11 +8,13 @@ const {
   findOneTask,
   findFinishedTask,
   findUnfinishedTask,
+  doneTask
 } = require('../controllers/taskController')
 const isLogin = require('../middlewares/isLogin')
 
 router.get('/unfinishedtask', isLogin, findUnfinishedTask)
 router.get('/finishedtask', isLogin, findFinishedTask)
+router.put('/done/:id', isLogin ,doneTask)
 
 router.post('/', isLogin, createTask)
 router.get('/', isLogin, readAllTask)
