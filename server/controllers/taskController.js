@@ -154,13 +154,16 @@ const doneTask = (req, res) => {
 }
 
 const updateTask = (req, res) => {
-    const { activity, due_date } = req.body
+    const { activity, description, due_date } = req.body
+
+    let dataUpdate = {}
+    if(activity) dataUpdate.activity = activity
+    if(description) dataUpdate.description = description
+    if(due_date) dataUpdate.due_date = due_date
+
     Task.updateOne({
         _id: req.params.id
-    }, {
-        activity: activity,
-        due_date: due_date
-    })
+    }, dataUpdate)
     .then(() => {
         res.status(201).json({
             message: `success update task`

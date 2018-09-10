@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,9 +11,9 @@
         crossorigin="anonymous">
     <script src="https://code.jquery.com/jquery-3.3.1.js" integrity="sha256-2Kok7MbOyxpgUVvAk/HJ2jigOSYS2auK4Pfzbm7uH60=" crossorigin="anonymous"></script>
     <link rel="stylesheet" href="./css/dashboard.css">
-    <!-- google font -->
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.2.0/css/all.css" integrity="sha384-hWVjflwFxL6sNzntih27bfxkr27PmbbK/iSvJ+a4+0owXq79v+lsFkW54bOGbiDQ"
+        crossorigin="anonymous">
     <link href="https://fonts.googleapis.com/css?family=Concert+One" rel="stylesheet">
-    <!-- axios -->
     <!-- swal -->
     <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
 </head>
@@ -150,21 +151,21 @@
             window.location = 'index.html'
         }
 
-            $(document).ready(function () {
-                let token = localStorage.getItem('token');
+        $(document).ready(function () {
+            let token = localStorage.getItem('token');
 
-                $.ajax({
-                    method: 'GET',
-                    url: baseUrl + '/task/unfinishedtask',
-                    headers: {
-                        token: token
-                    }
-                })
-                    .done(function (data) {
-                        console.log(data.data)
-                        data.data.forEach((task, index) => {
-                            if (task.status == false) {
-                                $("#tableTask").append(`
+            $.ajax({
+                method: 'GET',
+                url: baseUrl + '/task/unfinishedtask',
+                headers: {
+                    token: token
+                }
+            })
+                .done(function (data) {
+                    console.log(data.data)
+                    data.data.forEach((task, index) => {
+                        if (task.status == false) {
+                            $("#tableTask").append(`
                             <tr class="hide-tr">
                                 <th scope="row">${index + 1}</th>
                                 <td>${task.activity}</td>
@@ -183,13 +184,55 @@
                                     </button>
                                 </td>
                             </tr>`)
-                            }
-                        });
-                    })
-                    .fail(function (err) {
-                        console.log(err)
-                    })
+                        }
+                    });
+                })
+                .fail(function (err) {
+                    console.log(err)
+                })
+        })
+
+        function renderTask() {
+            $.ajax({
+                method: 'GET',
+                url: baseUrl + '/task/unfinishedtask',
+                headers: {
+                    token: token
+                }
             })
+                .done(function (data) {
+
+                    $('.card-today').hide()
+                    $('.hide-tr').hide()
+                    data.data.forEach((task, index) => {
+                        if (task.status == false) {
+
+                            $("#tableTask").append(`
+                            <tr class="hide-tr">
+                                <th scope="row">${index + 1}</th>
+                                <td>${task.activity}</td>
+                                <td>${task.description}</td>
+                                <td>${task.out_date.slice(0, 10)}</td>
+                                <td>${task.due_date.slice(0, 10)}</td>
+                                <td>
+                                    <button type="button" class="btn btn-success btn-sm" onclick="modalToUpdate('${task._id}', '${task.task}', '${task.description}', '${task.d_day}', '${task.reminder}')" data-toggle="modal" data-target="#updateTask">
+                                            <i class="fas fa-edit"></i>
+                                    </button>  
+                                    <button type="button" class="btn btn-danger btn-sm" onclick="taskToDelete('${task._id}')">
+                                        <i class="fas fa-trash-alt"></i>
+                                    </button>
+                                    <button type="button" class="btn btn-primary btn-sm" onclick="taskDone('${task._id}')">
+                                        <i class="fas fa-check-circle"></i>
+                                    </button>
+                                </td>
+                            </tr>`)
+                        }
+                    });
+                })
+                .fail(function (err) {
+                    console.log(err)
+                })
+        }
 
         function logout() {
             localStorage.removeItem('token')
@@ -217,14 +260,39 @@
                 }
             })
                 .done(data => {
+                    renderTask()
+                })
+                .fail(err => {
+                    console.log(err);
+
+                })
+        }
+
+        function updateTask(idTask) {
+            let activity = $('#activity').val()
+            let description = $('#description').val()
+            let duedate = $('#due_date').val()
+            $.ajax({
+                method: 'PUT',
+                url: baseUrl + `/tasks/${idtask}`,
+                headers: {
+                    token: token
+                },
+                data: {
+                    activity: activity,
+                    description: description,
+                    due_date: duedate,
+                },
+            })
+                .done(() => {
                     swal({
                         position: 'top',
                         type: 'success',
-                        title: 'Success create new task',
+                        title: 'Your task has been updated',
                         showConfirmButton: false,
                         timer: 1500
                     })
-                    // getTask()
+                    renderTask()
                 })
                 .fail(err => {
                     console.log(err);
