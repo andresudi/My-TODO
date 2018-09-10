@@ -176,7 +176,7 @@
                                     <button type="button" class="btn btn-success btn-sm" onclick="modalToUpdate('${task._id}', '${task.task}', '${task.description}', '${task.d_day}', '${task.reminder}')" data-toggle="modal" data-target="#updateTask">
                                             <i class="fas fa-edit"></i>
                                     </button>  
-                                    <button type="button" class="btn btn-danger btn-sm" onclick="taskToDelete('${task._id}')">
+                                    <button type="button" class="btn btn-danger btn-sm" onclick="deleteTask('${task._id}')">
                                         <i class="fas fa-trash-alt"></i>
                                     </button>
                                     <button type="button" class="btn btn-primary btn-sm" onclick="taskDone('${task._id}')">
@@ -218,7 +218,7 @@
                                     <button type="button" class="btn btn-success btn-sm" onclick="modalToUpdate('${task._id}', '${task.task}', '${task.description}', '${task.d_day}', '${task.reminder}')" data-toggle="modal" data-target="#updateTask">
                                             <i class="fas fa-edit"></i>
                                     </button>  
-                                    <button type="button" class="btn btn-danger btn-sm" onclick="taskToDelete('${task._id}')">
+                                    <button type="button" class="btn btn-danger btn-sm" onclick="deleteTask('${task._id}')">
                                         <i class="fas fa-trash-alt"></i>
                                     </button>
                                     <button type="button" class="btn btn-primary btn-sm" onclick="taskDone('${task._id}')">
@@ -292,6 +292,23 @@
                         showConfirmButton: false,
                         timer: 1500
                     })
+                    renderTask()
+                })
+                .fail(err => {
+                    console.log(err);
+
+                })
+        }
+
+        function deleteTask(idTask) {
+            $.ajax({
+                method: 'DELETE',
+                url: `${baseUrl}/task/${idTask}`,
+                headers: {
+                    token: token
+                }
+            })
+                .done(() => {
                     renderTask()
                 })
                 .fail(err => {
