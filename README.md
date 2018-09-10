@@ -16,7 +16,6 @@ todo fancy api using jquery and ajax
 | ---------------- | ------ | --------------------------------------- | ------------------------------- |
 | tasks/unfinished | GET    | get all user tasks with status not done | user token id                   |
 | tasks/finished   | GET    | get all user tasks with status done     | user token id                   |
-| tasks/:id        | GET    | get specific user task                  | id                              |
 | tasks/           | POST   | create task                             | activity, due_date, description |
 | tasks/:id        | PUT    | update task user                        | id                              |
 | tasks/done/:id   | PUT    | update status user with done            | id task                         |

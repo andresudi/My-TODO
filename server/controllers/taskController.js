@@ -98,6 +98,8 @@ const findFinishedTask = (req, res) => {
 }
 
 const doneTask = (req, res) => {
+    console.log('===>',req.body);
+    
     var decoded = jwt.verify(req.headers.token, 'process.env.JWT_SECRET')
     let emailUser = decoded.email 
     console.log(emailUser);
@@ -123,7 +125,7 @@ const doneTask = (req, res) => {
             from: 'Task',
             to: `${emailUser}`,
             subject: 'Finished Task',
-            text: `Yosh! congratulations for finishing your own task! hehe!`
+            text: `Yosh! congratulations for finishing ${req.body.activity} with description ${req.body.description}! hehe!`
         }
                     
         transporter.sendMail(mailOptions, function (err, info) {
