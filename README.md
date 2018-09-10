@@ -34,4 +34,4 @@ npm install
 npm run dev
 ```
 
-Access via http://localhost:3000
+Access via https://my-todo-e695e.firebaseapp.com
