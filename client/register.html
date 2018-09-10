@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="css/styeLogin.css">
+    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.3.1.js" integrity="sha256-2Kok7MbOyxpgUVvAk/HJ2jigOSYS2auK4Pfzbm7uH60=" crossorigin="anonymous"></script>
+    <script type="text/javascript" src="js/validationRegister.js"></script>
+    <title>My Todo</title>
+</head>
+
+<body>
+    <script>
+        var baseUrl = 'http://localhost:3000'
+        window.fbAsyncInit = function () {
+            FB.init({
+                appId: '766191817047813',
+                cookie: true,
+                xfbml: true,
+                version: 'v3.1'
+            });
+            FB.AppEvents.logPageView();
+        };
+
+        (function (d, s, id) {
+            var js, fjs = d.getElementsByTagName(s)[0];
+            if (d.getElementById(id)) { return; }
+            js = d.createElement(s); js.id = id;
+            js.src = "https://connect.facebook.net/en_US/sdk.js";
+            fjs.parentNode.insertBefore(js, fjs);
+        }(document, 'script', 'facebook-jssdk'));
+
+
+        function checkLoginState() {
+            FB.getLoginStatus(function (response) {
+                $.ajax({
+                    method: 'POST',
+                    url: baseUrl + `/users/loginfb`,
+                    data: {
+                        token: response.authResponse.accessToken
+                    }
+                })
+                    .done((user) => {
+                        console.log('===>', user);
+                        localStorage.setItem('name', user.name)
+                        localStorage.setItem('email', user.email)
+                        window.location = 'dashboard.html'
+                    })
+                    .fail((err) => {
+                        console.log(err)
+                    })
+            });
+        }
+    </script>
+    <div id="login-button">
+        <img src="https://dqcgrsy5v35b9.cloudfront.net/cruiseplanner/assets/img/icons/login-w-icon.png">
+        </img>
+    </div>
+    <div id="container">
+        <h1>Create an Account</h1>
+        <span class="close-btn">
+            <img src="https://cdn4.iconfinder.com/data/icons/miu/22/circle_close_delete_-128.png"></img>
+        </span>
+
+        <form id=registration_form>
+            <input type="text" name="name" id="name" placeholder="Name">
+            <p class="error_form" id="username_error_message"></p>
+            <input type="email" name="email" id="email" placeholder="E-mail">
+            <p class="error_form" id="email_error_message"></p>
+            <input type="password" name="pass" id="password" placeholder="Password">
+            <p class="error_form" id="password_error_message"></p>
+            <a href="#" onclick="register()">Sign Up</a>
+            <br>
+            <h3>Already have an account?
+                <a href="index.html">Login</a> or login with
+                <fb:login-button scope="public_profile,email" onlogin="checkLoginState();">
+                </fb:login-button>
+            </h3>
+    </div>
+    </div>
+    </form>
+    </div>
+
+    <script>
+        var baseUrl = 'http://localhost:3000'
+        $('#login-button').click(function () {
+            $('#login-button').fadeOut("slow", function () {
+                $("#container").fadeIn();
+                // TweenMax.from("#container", .4, { scale: 0, ease: Sine.easeInOut });
+                // TweenMax.to("#container", .4, { scale: 1, ease: Sine.easeInOut });
+            });
+        });
+
+        $(".close-btn").click(function () {
+            // TweenMax.from("#container", .4, { scale: 1, ease: Sine.easeInOut });
+            // TweenMax.to("#container", .4, { left: "0px", scale: 0, ease: Sine.easeInOut });
+            $("#container, #forgotten-container").fadeOut(800, function () {
+                $("#login-button").fadeIn(800);
+            });
+        });
+
+        /* Forgotten Password */
+        $('#forgotten').click(function () {
+            $("#container").fadeOut(function () {
+                $("#forgotten-container").fadeIn();
+            });
+        });
+
+        function register() {
+            var name = $("#name").val();
+            var email = $("#email").val();
+            var password = $("#password").val();
+
+            $.ajax({
+                method: 'POST',
+                url: baseUrl + `/users/register`,
+                data: {
+                    name: name,
+                    email: email,
+                    password: password
+                }
+            })
+                .done(function () {
+                    swal('Yosh!', 'success registered new user', 'success')
+                        .then(() => {
+                            window.location = 'index.html'
+                        })
+                })
+                .fail(function (err) {
+                    console.log(err)
+                })
+        }
+
+
+        $(document).ready(function unsplash() {
+            $.ajax({
+                method: 'GET',
+                url: baseUrl + '/unsplash'
+            })
+                .done(function (images) {
+                    console.log(images.data);
+                    let image = images.data
+                    let random = Math.floor(Math.random() * image.length)
+                    $('body').css('background-image', `url(${image[random].urls.full})`)
+                        .css('background-size', 'cover')
+                        .css('background-attachment', 'fix')
+                })
+                .fail(function (err) {
+                    console.log(err);
+                })
+        })
+    </script>
+</body>
+
+</html>
