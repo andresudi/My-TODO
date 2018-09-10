@@ -60,18 +60,11 @@ const findOneTask = (req,res) => {
 const findUnfinishedTask = (req, res) => {
     let token = req.headers.token
     var decoded = jwt.verify(token, 'process.env.JWT_SECRET')
-    console.log(token);
-    
-    console.log('log dari unfinished decode',decoded);
-    
     Task.find({
         UserId: decoded.id,
         status: false,
     }).sort({createdAt: 1})
     .then((data) => {
-        console.log(data);
-        console.log('masuk');
-        
         res.status(200).json({
             message: `unfinished task list`,
             data
