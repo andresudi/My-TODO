@@ -119,7 +119,7 @@
                             <span aria-hidden="true">&times;</span>
                         </button>
                     </div>
-                    <div class="modal-body modal-update">
+                    <div class="modal-body modal-edit">
 
                     </div>
                 </div>
@@ -136,21 +136,28 @@
                 window.location = 'index.html'
             }
 
-            $(document).ready(function () {
-                let token = localStorage.getItem('token');
+            function reload() {
+                let token = localStorage.getItem("token")
+                if (!token) {
+                    window.location.replace("http://localhost:8080/index.html")
+                }
+            }
 
-                $.ajax({
-                    method: 'GET',
-                    url: baseUrl + '/task/unfinishedtask',
-                    headers: {
-                        token: token
-                    }
-                })
-                    .done(function (data) {
-                        console.log(data.data)
-                        data.data.forEach((task, index) => {
-                            if (task.status == false) {
-                                $("#tableTask").append(`
+                $(document).ready(function () {
+                    let token = localStorage.getItem('token');
+
+                    $.ajax({
+                        method: 'GET',
+                        url: baseUrl + '/task/unfinishedtask',
+                        headers: {
+                            token: token
+                        }
+                    })
+                        .done(function (data) {
+                            console.log(data.data)
+                            data.data.forEach((task, index) => {
+                                if (task.status == false) {
+                                    $("#tableTask").append(`
                             <tr class="hide-tr">
                                 <th scope="row">${index + 1}</th>
                                 <td>${task.activity}</td>
@@ -158,7 +165,49 @@
                                 <td>${task.out_date.slice(0, 10)}</td>
                                 <td>${task.due_date.slice(0, 10)}</td>
                                 <td>
-                                    <button type="button" class="btn btn-success btn-sm" onclick="modalToUpdate('${task._id}', '${task.activity}', '${task.description}', '${task.due_date}')" data-toggle="modal" data-target="#edit">
+                                    <button type="button" class="btn btn-success btn-sm" index="${task._id}" onclick="findOneTask(this)" data-toggle="modal" data-target="#edit">
+                                        <i class="fas fa-edit"></i>
+                                    </button>  
+                                    <button type="button" class="btn btn-danger btn-sm" onclick="deleteTask('${task._id}')">
+                                        <i class="fas fa-trash-alt"></i>
+                                    </button>
+                                    <button type="button" index="${task._id}" taskName="${task.activity}" description="${task.description}" class="btn btn-primary btn-sm" onclick="taskDone(this)">
+                                        <i class="fas fa-check-circle"></i>
+                                    </button>
+                                </td>
+                            </tr>`)
+                                }
+                            });
+                        })
+                        .fail(function (err) {
+                            console.log(err)
+                        })
+                })
+
+                function renderTask() {
+                    $.ajax({
+                        method: 'GET',
+                        url: baseUrl + '/task/unfinishedtask',
+                        headers: {
+                            token: token
+                        }
+                    })
+                        .done(function (data) {
+
+                            $('.card-today').hide()
+                            $('.hide-tr').hide()
+                            data.data.forEach((task, index) => {
+                                if (task.status == false) {
+
+                                    $("#tableTask").append(`
+                            <tr class="hide-tr">
+                                <th scope="row">${index + 1}</th>
+                                <td>${task.activity}</td>
+                                <td>${task.description}</td>
+                                <td>${task.out_date.slice(0, 10)}</td>
+                                <td>${task.due_date.slice(0, 10)}</td>
+                                <td>
+                                    <button type="button" class="btn btn-success btn-sm" index="${task._id}" onclick="findOneTask(this)" data-toggle="modal" data-target="#edit">
                                             <i class="fas fa-edit"></i>
                                     </button>  
                                     <button type="button" class="btn btn-danger btn-sm" onclick="deleteTask('${task._id}')">
@@ -169,198 +218,179 @@
                                     </button>
                                 </td>
                             </tr>`)
-                            }
-                        });
+                                }
+                            });
+                        })
+                        .fail(function (err) {
+                            console.log(err)
+                        })
+                }
+
+                function logout() {
+                    localStorage.removeItem('token')
+                    window.location = 'index.html'
+                    FB.logout(function (response) {
+                        statusChangeCallback(response)
                     })
-                    .fail(function (err) {
-                        console.log(err)
+                }
+
+                function addTask() {
+                    let activity = $('#activity').val()
+                    let description = $('#description').val()
+                    let due_date = $('#due_date').val()
+
+                    $.ajax({
+                        method: 'POST',
+                        url: baseUrl + '/task',
+                        headers: {
+                            token: token
+                        },
+                        data: {
+                            activity: activity,
+                            description: description,
+                            due_date: due_date
+                        }
                     })
-            })
+                        .done(data => {
+                            renderTask()
+                        })
+                        .fail(err => {
+                            console.log(err);
 
-            function renderTask() {
-                $.ajax({
-                    method: 'GET',
-                    url: baseUrl + '/task/unfinishedtask',
-                    headers: {
-                        token: token
-                    }
-                })
-                    .done(function (data) {
+                        })
+                }
 
-                        $('.card-today').hide()
-                        $('.hide-tr').hide()
-                        data.data.forEach((task, index) => {
-                            if (task.status == false) {
+                function updateTask(data) {
+                    let idTask = data.getAttribute('index')
 
-                                $("#tableTask").append(`
-                            <tr class="hide-tr">
-                                <th scope="row">${index + 1}</th>
-                                <td>${task.activity}</td>
-                                <td>${task.description}</td>
-                                <td>${task.out_date.slice(0, 10)}</td>
-                                <td>${task.due_date.slice(0, 10)}</td>
-                                <td>
-                                    <button type="button" class="btn btn-success btn-sm" onclick="modalToUpdate('${task._id}', '${task.activity}', '${task.description}', '${task.due_date}')" data-toggle="modal" data-target="#edit">
-                                            <i class="fas fa-edit"></i>
-                                    </button>  
-                                    <button type="button" class="btn btn-danger btn-sm" onclick="deleteTask('${task._id}')">
-                                        <i class="fas fa-trash-alt"></i>
-                                    </button>
-                                    <button type="button" index="${task._id}" taskName="${task.activity}" description="${task.description}" class="btn btn-primary btn-sm" onclick="taskDone(this)">
-                                        <i class="fas fa-check-circle"></i>
-                                    </button>
-                                </td>
-                            </tr>`)
-                            }
-                        });
+                    let activity = $('#taskNameEdit').val()
+                    console.log(activity);
+
+                    let description = $('#descriptionEdit').val()
+                    console.log(description);
+
+                    let due_date = $('#dateEdit').val()
+                    console.log(due_date);
+
+                    $.ajax({
+                        method: 'PUT',
+                        url: baseUrl + `/task/${idTask}`,
+                        headers: {
+                            token: token
+                        },
+                        data: {
+                            activity: activity,
+                            description: description,
+                            due_date: due_date,
+                        },
                     })
-                    .fail(function (err) {
-                        console.log(err)
+                        .done(() => {
+                            renderTask()
+                            reload()
+                            $('#taskNameEdit').val('')
+                            $('#descriptionEdit').val('')
+                            $('#dateEdit').val('')
+                        })
+                        .fail(err => {
+                            console.log(err);
+                        })
+                }
+
+                let taskModal
+                function findOneTask(data) {
+                    console.log('ini data dari find one', data);
+
+                    let idTask = data.getAttribute('index')
+                    $.ajax({
+                        method: 'GET',
+                        url: baseUrl + `/task/${idTask}`,
+                        headers: {
+                            token
+                        }
                     })
-            }
-
-            function logout() {
-                localStorage.removeItem('token')
-                window.location = 'index.html'
-                FB.logout(function (response) {
-                    statusChangeCallback(response)
-                })
-            }
-
-            function addTask() {
-                let activity = $('#activity').val()
-                let description = $('#description').val()
-                let due_date = $('#due_date').val()
-
-                $.ajax({
-                    method: 'POST',
-                    url: baseUrl + '/task',
-                    headers: {
-                        token: token
-                    },
-                    data: {
-                        activity: activity,
-                        description: description,
-                        due_date: due_date
-                    }
-                })
-                    .done(data => {
-                        renderTask()
-                    })
-                    .fail(err => {
-                        console.log(err);
-
-                    })
-            }
-
-            function updateTask(idTask) {
-                let activity = $('#activity').val()
-                let description = $('#description').val()
-                let due_date = $('#due_date').val()
-                $.ajax({
-                    method: 'PUT',
-                    url: baseUrl + `/task/${idTask}`,
-                    headers: {
-                        token: token
-                    },
-                    data: {
-                        activity: activity,
-                        description: description,
-                        due_date: due_date,
-                    },
-                })
-                    .done(() => {
-                        renderTask()
-                    })
-                    .fail(err => {
-                        console.log(err);
-                    })
-            }
-
-            function modalToUpdate(idTask, activity, description, duse_date) {
-                $('.form-update').remove()
-                $('.modal-update').append(`
-            <div class="form-update">
-            <form>
-                    <form>
+                        .done(result => {
+                            $('.form-update').hide()
+                            $('.modal-footer').hide()
+                            taskModal = result.data;
+                            console.log('ini taskModal', taskModal);
+                            console.log('result dari then fined one', result);
+                            let data = `    
+                        
+                    <form class="form-update">
                         <div class="form-group">
                             <label for="exampleInputEmail1">Task</label>
-                            <input type="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" id="activity" value="${activity}">
+                            <input type="text" class="form-control" aria-describedby="emailHelp" id="taskNameEdit" value="${taskModal.activity}">
                         </div>
                         <div class="form-group">
                             <label class="form-check-label" for="exampleCheck1">Description</label>
-                            <input type="text" class="form-control" aria-describedby="emailHelp" placeholder="Enter Task" id="description" value="${description}">
+                            <input type="text" class="form-control" aria-describedby="emailHelp" placeholder="Enter Task" id="descriptionEdit" value="${taskModal.description}">
                         </div>
                         <div class="form-group">
                             <label for="exampleInputPassword1">Due Date</label>
-                            <input type="date" class="form-control" id="exampleInputPassword1" id="due_date" value="${due_date}">
+                            <input type="date" class="form-control" id="dateEdit" value="${taskModal.due_date.slice(0, 10)}">
                         </div>
                     </form>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                        <button onclick="updateTask('${idTask}')" type="button" data-dismiss="modal" class="btn btn-primary">Save changes</button>
+                        <button index="${taskModal._id}" onclick="updateTask(this)" type="button" data-dismiss="modal" class="btn btn-primary">Save changes</button>
                     </div>
-            </div>
-            `)
+                  `
 
-            }
-
-            function taskDone(data) {
-                console.log(data);
-                
-                let idTask = data.getAttribute('index')
-                console.log(idTask);
-                
-                let activity = data.getAttribute('taskName')
-                console.log(activity);
-                
-                let description = data.getAttribute('description')
-                console.log(description);
-                
-                $.ajax({
-                    method: 'PUT',
-                    url: baseUrl + `/task/done/${idTask}`,
-                    headers: {
-                        token: token
-                    }, 
-                    data: {
-                        activity,
-                        description
-                    }
-                })
-                    .done(() => {
-                        swal({
-                            position: 'top',
-                            type: 'success',
-                            title: 'Yosh, you have completed your task, Please check your email!',
-                            showConfirmButton: false,
-                            timer: 1500
+                            $('.modal-edit').append(data)
                         })
-                        renderTask()
-                    })
-                    .fail(err => {
-                        console.log(err);
+                        .fail(err => {
+                            console.log(err);
+                        })
+                }
 
+                function taskDone(data) {
+                    let idTask = data.getAttribute('index')
+                    let activity = data.getAttribute('taskName')
+                    let description = data.getAttribute('description')
+                    $.ajax({
+                        method: 'PUT',
+                        url: baseUrl + `/task/done/${idTask}`,
+                        headers: {
+                            token: token
+                        },
+                        data: {
+                            activity,
+                            description
+                        }
                     })
-            }
+                        .done(() => {
+                            swal({
+                                position: 'top',
+                                type: 'success',
+                                title: 'Yosh, you have completed your task, Please check your email!',
+                                showConfirmButton: false,
+                                timer: 1500
+                            })
+                            renderTask()
+                        })
+                        .fail(err => {
+                            console.log(err);
 
-            function deleteTask(idTask) {
-                $.ajax({
-                    method: 'DELETE',
-                    url: `${baseUrl}/task/${idTask}`,
-                    headers: {
-                        token: token
-                    }
-                })
-                    .done(() => {
-                        renderTask()
-                    })
-                    .fail(err => {
-                        console.log(err);
+                        })
+                }
 
+                function deleteTask(idTask) {
+                    $.ajax({
+                        method: 'DELETE',
+                        url: `${baseUrl}/task/${idTask}`,
+                        headers: {
+                            token: token
+                        }
                     })
-            }
+                        .done(() => {
+                            renderTask()
+                        })
+                        .fail(err => {
+                            console.log(err);
+
+                        })
+                }
         </script>
 </body>
 

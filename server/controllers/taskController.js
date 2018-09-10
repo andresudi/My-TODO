@@ -151,6 +151,8 @@ const doneTask = (req, res) => {
 }
 
 const updateTask = (req, res) => {
+    console.log(req.body);
+    
     const { activity, description, due_date } = req.body
 
     let dataUpdate = {}
