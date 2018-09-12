@@ -246,6 +246,9 @@
                 })
                     .done(data => {
                         renderTask()
+                        $('#activity').val('')
+                        $('#description').val('')
+                        $('#due_date').val('')
                     })
                     .fail(err => {
                         console.log(err);
@@ -258,10 +261,8 @@
 
                 let activity = $('#taskNameEdit').val()
                 console.log(activity);
-
                 let description = $('#descriptionEdit').val()
                 console.log(description);
-
                 let due_date = $('#dateEdit').val()
                 console.log(due_date);
 
@@ -352,7 +353,9 @@
                         description
                     }
                 })
-                    .done(() => {
+                    .done((data) => {
+                        console.log(data);
+                        
                         swal({
                             position: 'top',
                             type: 'success',

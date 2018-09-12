@@ -2,15 +2,15 @@ const jwt = require('jsonwebtoken')
 const User = require('../models/user')
 
 const isLogin = (req, res, next) => {
-    let token = req.headers.token
-    let decode = jwt.verify(token, 'process.env.JWT_SECRET')
-    console.log('ini decode dari isLogin ===>', decode)
+    var token = req.headers.token
      if (token) {
+        var decode = jwt.verify(token, 'process.env.JWT_SECRET')
         User.findOne({
             email: decode.email 
         })
         .then((data) => {
             if (data) {
+                req.loggedInUser = data
                 next()
             } else {
                 res.status(400).json({

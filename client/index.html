@@ -141,7 +141,6 @@
                 }
             })
                 .done((user) => {
-                    console.log('ini user ===>', user.email)
                     localStorage.setItem('email', user.email)
                     localStorage.setItem('token', user.token)
                     window.location = 'dashboard.html'

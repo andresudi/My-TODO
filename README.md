@@ -34,4 +34,4 @@ npm install
 npm run dev
 ```
 
-Access via https://my-todo-e695e.firebaseapp.com
+Access via https://todo-andre.firebaseapp.com

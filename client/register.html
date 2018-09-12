@@ -14,7 +14,7 @@
 
 <body>
     <script>
-        var baseUrl = 'http://35.192.143.129'
+        var baseUrl = 'https://andre-todo.andresudi.club'
         window.fbAsyncInit = function () {
             FB.init({
                 appId: '766191817047813',
@@ -85,7 +85,7 @@
     </div>
 
     <script>
-        var baseUrl = 'http://35.192.143.129'
+        var baseUrl = 'https://andre-todo.andresudi.club'
         $('#login-button').click(function () {
             $('#login-button').fadeOut("slow", function () {
                 $("#container").fadeIn();
@@ -141,7 +141,6 @@
                 url: baseUrl + '/unsplash'
             })
                 .done(function (images) {
-                    console.log(images.data);
                     let image = images.data
                     let random = Math.floor(Math.random() * image.length)
                     $('body').css('background-image', `url(${image[random].urls.full})`)

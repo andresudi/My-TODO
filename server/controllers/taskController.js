@@ -5,12 +5,12 @@ require('dotenv').config()
 
 const createTask = (req, res) => {
     const { activity, description, due_date } = req.body
-    var decoded = jwt.verify(req.headers.token, 'process.env.JWT_SECRET')
+    let loggedInUser = req.loggedInUser
     Task.create({
         activity: activity,
         description: description,
         due_date: new Date(due_date),
-        UserId: decoded.id,
+        UserId: loggedInUser._id,
     })
     .then((data) => {
         res.status(201).json({
@@ -58,10 +58,9 @@ const findOneTask = (req,res) => {
 }
 
 const findUnfinishedTask = (req, res) => {
-    let token = req.headers.token
-    var decoded = jwt.verify(token, 'process.env.JWT_SECRET')
+    let loggedInUser = req.loggedInUser
     Task.find({
-        UserId: decoded.id,
+        UserId: loggedInUser._id,
         status: false,
     }).sort({createdAt: 1})
     .then((data) => {
@@ -78,10 +77,9 @@ const findUnfinishedTask = (req, res) => {
 }
 
 const findFinishedTask = (req, res) => {
-    let token = req.headers.token
-    var decoded = jwt.verify(token, 'process.env.JWT_SECRET')
+    let loggedInUser = req.loggedInUser
     Task.find({
-        UserId: decoded.id,
+        UserId: loggedInUser.id,
         status: true,
     })
     .then((data) => {
@@ -98,50 +96,72 @@ const findFinishedTask = (req, res) => {
 }
 
 const doneTask = (req, res) => {
-    console.log('===>',req.body);
+    console.log('req body donetask', req.body);
     
-    var decoded = jwt.verify(req.headers.token, 'process.env.JWT_SECRET')
-    let emailUser = decoded.email 
-    console.log(emailUser);
+    let loggedInUser = req.loggedInUser
+    console.log('req loggedInUser', loggedInUser);
     
-    Task.updateOne({
+    Task.findOne({
         _id: req.params.id
-    }, {
-        status: true
     })
-    .then(() => {
-        var transporter = nodemailer.createTransport({
-            service: 'gmail',
-            host: 'smtp.gmail.com',
-            port: 587,
-            secure: true,
-            auth: {
-              user: 'hacktiv8andresudi@gmail.com',
-              pass: 'hacktiv8Super'
-            }
-          })
-      
-        const mailOptions = {
-            from: 'Task',
-            to: `${emailUser}`,
-            subject: 'Finished Task',
-            text: `Yosh! congratulations for finishing ${req.body.activity} with description ${req.body.description}! hehe!`
-        }
+    .then((data) => {
+        if (data) {
+            if (String(data.UserId) == String(loggedInUser._id)) {
+                Task.updateOne({
+                    _id: req.params.id
+                }, {
+                    status: true
+                })
+                .then(() => {
+                    console.log('masuk kirim email');
                     
-        transporter.sendMail(mailOptions, function (err, info) {
-            if(err) {
-                res.status(400).json({
-                    message: err.message
+                    var transporter = nodemailer.createTransport({
+                        service: 'gmail',
+                        host: 'smtp.gmail.com',
+                        port: 587,
+                        secure: true,
+                        auth: {
+                          user: 'hacktiv8andresudi@gmail.com',
+                          pass: `hacktiv8Super`
+                        }
+                      })
+                    const mailOptions = {
+                        from: '"MY TODO" <hacktiv8andresudi@gmail.com>',
+                        to: `${loggedInUser.email}`,
+                        subject: 'Finished Task',
+                        text: `Yosh! congratulations for finishing task ${req.body.activity} with description ${req.body.description}!\n Thank you for using MY TODO apps`
+                    }
+                                
+                    transporter.sendMail(mailOptions, function (err, info) {
+                        if(err) {
+                            res.status(400).json({
+                                message: err.message
+                            })
+                        } else {
+                            res.status(200).json({
+                                message: `email has been sent!`
+                            })
+                        }
+                    })
+                    res.status(201).json({
+                        message: `Task Done!`
+                    })
+                })
+                .catch((err) => {
+                    res.status(400).json({
+                        message: err.message
+                    })
                 })
             } else {
-                res.status(200).json({
-                    message: `email has been sent!`
+                res.status(400).json({
+                    message: `You don't have access to do this action!`
                 })
             }
-        })
-        res.status(201).json({
-            message: `Task Done!`
-        })
+        } else {
+            res.status(400).json({
+                message: `Data Not Found`
+            })
+        }
     })
     .catch((err) => {
         res.status(400).json({
@@ -150,23 +170,42 @@ const doneTask = (req, res) => {
     })
 }
 
-const updateTask = (req, res) => {
-    console.log(req.body);
-    
+const updateTask = (req, res) => { 
     const { activity, description, due_date } = req.body
-
-    let dataUpdate = {}
-    if(activity) dataUpdate.activity = activity
-    if(description) dataUpdate.description = description
-    if(due_date) dataUpdate.due_date = due_date
-
-    Task.updateOne({
+    let loggedInUser = req.loggedInUser
+    Task.findOne({
         _id: req.params.id
-    }, dataUpdate)
-    .then(() => {
-        res.status(201).json({
-            message: `success update task`
-        })
+    })
+    .then((data) => {
+        if (data) {
+            if (String(data.UserId) == String(loggedInUser._id)) {
+                let dataUpdate = {}
+                if(activity) dataUpdate.activity = activity
+                if(description) dataUpdate.description = description
+                if(due_date) dataUpdate.due_date = due_date
+                Task.updateOne({
+                    _id: req.params.id
+                }, dataUpdate)
+                .then(() => {
+                    res.status(201).json({
+                        message: `success update task`
+                    })
+                })
+                .catch((err) => {
+                    res.status(400).json({
+                        message: err.message
+                    })
+                })
+            } else {
+                res.status(400).json({
+                    message: `You don't have access to do this action!`
+                })
+            }
+        } else {
+            res.status(400).json({
+                message: `Data Not Found`
+            })
+        }
     })
     .catch((err) => {
         res.status(400).json({
@@ -176,11 +215,36 @@ const updateTask = (req, res) => {
 }
 
 const deleteTask = (req, res) => {
-    Task.deleteOne({_id: req.params.id})
-    .then(() => {
-        res.status(200).json({
-            message: `success delete task`
-        })
+    let loggedInUser = req.loggedInUser
+    Task.findOne({
+        _id: req.params.id
+    })
+    .then((data) => {
+        console.log(data);
+        console.log(loggedInUser);
+        if (data) {
+            if(String(data.UserId) == String(loggedInUser._id)) {
+                Task.deleteOne({_id: req.params.id})
+                .then(() => {
+                    res.status(200).json({
+                        message: `success delete task`
+                    })
+                })
+                .catch((err) => {
+                    res.status(400).json({
+                        message: err.message
+                    })
+                })
+            } else {
+                res.status(400).json({
+                    message: `You don't have access to do this action!`
+                })
+            }
+        } else {
+            res.status(400).json({
+                message: `Data not found`
+            })
+        }
     })
     .catch((err) => {
         res.status(400).json({
