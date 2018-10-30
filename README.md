@@ -27,12 +27,12 @@ todo fancy api using jquery and ajax
 | --------- | ------ | ------------------------- | ----------------------- |
 | /unsplash | GET    | get photo from collection | access key on Client ID |
 
-## USAGE
+### USAGE
 
 ```
 npm install
 npm run dev
 ```
-## Demo
+### Demo
 
 https://my-todo.andresudi.club
