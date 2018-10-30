@@ -34,4 +34,4 @@ npm install
 npm run dev
 ```
 
-Access via https://todo-andre.firebaseapp.com
+Access via https://my-todo.andresudi.club

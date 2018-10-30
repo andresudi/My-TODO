@@ -5,15 +5,19 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <script src="https://apis.google.com/js/platform.js" async defer></script>
+    <meta name="google-signin-client_id" content="466835311800-hojoupioll4383a85598eoehcs5akr86.apps.googleusercontent.com">
     <link rel="stylesheet" href="css/styeLogin.css">
     <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.3.1.js" integrity="sha256-2Kok7MbOyxpgUVvAk/HJ2jigOSYS2auK4Pfzbm7uH60=" crossorigin="anonymous"></script>
+
     <title>My Todo</title>
 </head>
 
 <body>
+
     <script>
-        var baseUrl = 'https://andre-todo.andresudi.club'
+        var baseUrl = 'https://instance-1.andresudi.club'
         window.fbAsyncInit = function () {
             FB.init({
                 appId: '766191817047813',
@@ -56,9 +60,10 @@
             });
         }
     </script>
-      <div class="alert alert-danger alert-dismissible fade show" role="alert">
-    
-        </div>
+
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+
+    </div>
     <div id="login-button">
         <img src="https://dqcgrsy5v35b9.cloudfront.net/cruiseplanner/assets/img/icons/login-w-icon.png">
         </img>
@@ -84,9 +89,8 @@
     </div>
     </form>
     </div>
-
     <script>
-        var baseUrl = 'https://andre-todo.andresudi.club'
+        var baseUrl = 'https://instance-1.andresudi.club'
         var token = localStorage.getItem('token')
         if (token) {
             window.location = 'dashboard.html'
@@ -150,6 +154,8 @@
                     console.log(err);
                 })
         }
+
+     
     </script>
 </body>
 

@@ -1,6 +1,5 @@
 {
   "projects": {
-    "default": "todo-andre",
-    "todo": "todo-andre"
+    "default": "todo-andre"
   }
 }
